@@ -78,7 +78,8 @@ public class Seg : MonoBehaviour
         texPlugin = NativeTexturePlugin.Activate();
 
         //Flip the image horizontally
-
+        //sm.CaptureManager.Device.IVCAMAccuracy = IVCAMAccuracy.IVCAM_ACCURACY_FINEST;
+        //sm.CaptureManager.Device.MirrorMode = MirrorMode.MIRROR_MODE_HORIZONTAL;
         //if (distance <= 30)
         //{
         //    LoadingOverlay overlay = GameObject.Find("LoadingOverlay").gameObject.GetComponent<LoadingOverlay>();
