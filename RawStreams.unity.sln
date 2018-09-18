@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RawStreams.unity", "RawStreams.unity.csproj", "{63067C28-09C9-A782-7D46-CF29DE6EB7B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RawStreams.unity.Editor", "RawStreams.unity.Editor.csproj", "{88411C0C-C6D7-6582-1A9D-6BB3932F16F4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{63067C28-09C9-A782-7D46-CF29DE6EB7B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63067C28-09C9-A782-7D46-CF29DE6EB7B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63067C28-09C9-A782-7D46-CF29DE6EB7B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63067C28-09C9-A782-7D46-CF29DE6EB7B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88411C0C-C6D7-6582-1A9D-6BB3932F16F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88411C0C-C6D7-6582-1A9D-6BB3932F16F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88411C0C-C6D7-6582-1A9D-6BB3932F16F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88411C0C-C6D7-6582-1A9D-6BB3932F16F4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
