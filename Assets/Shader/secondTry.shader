@@ -1,8 +1,12 @@
-﻿Shader "Unlit/secondTry"
-{
+﻿// Unlit alpha-blended shader.
+// - no lighting
+// - no lightmap support
+// - no per-material color
+
+Shader "Unlit/FadingEffect" {
 	Properties{
 		_MainTex("Base (RGB) Trans (A)", 2D) = "white" {}
-		_Test("_test", Float ) = test
+		_MaxTransparencyLimit("MaxTransparencyLimit", float) = 0.18
 	}
 
 		SubShader{
@@ -28,70 +32,53 @@
 	struct v2f {
 		float4 vertex : SV_POSITION;
 		half2 texcoord : TEXCOORD0;
-		UNITY_FOG_COORDS(1)
 	};
 
 	sampler2D _MainTex;
 	float4 _MainTex_ST;
-	float _test;
+
+	uniform float _tst;
+	float _MaxTransparencyLimit;
 
 	v2f vert(appdata_t v)
 	{
 		v2f o;
 		o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
 		o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
-		UNITY_TRANSFER_FOG(o,o.vertex);
 		return o;
 	}
 
-	/*fixed4 frag_Ghassem: SV_Target
+	fixed4 frag_red(v2f i) : SV_Target
 	{
-	fixed4 col = tex2D(_MainTex, i.texcoord);
-	UNITY_APPLY_FOG(i.fogCoord, col);
-	return col;
-	}*/
-
-
-	fixed4 frag(v2f i) : SV_Target
-	{
-		// sample the texture
 		fixed4 col = tex2D(_MainTex, i.texcoord);
-	// apply fog
-	fixed4 output = col;
-	//UNITY_APPLY_FOG(i.fogCoord, col);
-	//return col;
-
-	if (col.a == 0) //background
-	{
-		col.a = _test;
-		UNITY_APPLY_FOG(i.fogCoord, col);
-		//col.a = 1 - col.a;
+	    col.a = 1.0;
 		col.r = 1;
-		col.g = 0;
-		col.b = 0;
-		/*	col.r = col.a;
-		col.g = col.a;
-		col.b = col.a;
-		col.a = 1;
-		*/	return col;
+		col.g = _tst;
+		col.b = _tst;
+	return col;
 	}
-	else if (col.a == 1) //foreground
+
+    fixed4 frag(v2f i) : SV_Target
 	{
-		UNITY_APPLY_FOG(i.fogCoord, col);
-		col.r = col.a;
-		col.g = col.a;
-		col.b = col.a;
-		col.a = 1;
+		fixed4 col = tex2D(_MainTex, i.texcoord);
+
+		if(_tst < 0.2 && col.a <= 0.85)
+		{
+			col.a = (1 - ((_tst - 0.15) / 0.05));	//_MaxTransparencyLimit;
+			if (col.a > 1)
+			{
+				col.a = 1;
+			}
+			if (col.a < 0 ) {
+				col.a = 0;
+				}
+		}
 		return col;
 	}
 
-	col.r = 0;
-	col.g = 0;
-	col.b = 1;
-	return col;
 
+		ENDCG
 	}
-			ENDCG
-		}
 	}
+
 }

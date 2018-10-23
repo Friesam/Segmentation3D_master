@@ -1,11 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-
 using Intel.RealSense;
 using Intel.RealSense.Segmentation;
 using System;
+
 // For each subsequent algorithm module "using Intel.RealSense.AlgorithmModule;"
 
 public class RawStreamsController : MonoBehaviour
@@ -15,19 +12,19 @@ public class RawStreamsController : MonoBehaviour
     // These values are used for Texture Size 
     private int colorWidth = 1280;
     private int colorHeight = 720;
+    private float depthFPS = 60f;
     private float colorFPS = 30f;
     private int depthWidth = 640;
-    private int depthHeight = 480;
-    public float test;
+    private int depthHeight = 480;         
     public Material RGBMaterial;
 
     private SenseManager sm = null;
     private NativeTexturePlugin texPlugin = null;
     private SampleReader sampleReader = null;
-
     private SampleReader sampleReader2 = null;
     private System.IntPtr colorTex2DPtr = System.IntPtr.Zero;
     Seg3D seg = null;
+    private float test { get; set; }
 
     void OnFrameProcessed(System.Object sender, FrameProcessedEventArgs args)
     {
@@ -45,6 +42,7 @@ public class RawStreamsController : MonoBehaviour
             }
             else
             {
+               
                 Debug.Log("Image is null.");
             }
         }
@@ -52,6 +50,35 @@ public class RawStreamsController : MonoBehaviour
 
     }
 
+    private void SampleArrived(object sender, SampleArrivedEventArgs args)
+    {
+        Image dimage = args.sample.Depth;
+
+        if (dimage != null)
+
+        {
+            ImageData outBuffer;
+            Status acquireAccessStatus = dimage.AcquireAccess(ImageAccess.ACCESS_READ, PixelFormat.PIXEL_FORMAT_DEPTH_F32, out outBuffer);
+            if (acquireAccessStatus != Status.STATUS_NO_ERROR)
+            {
+                Debug.Log(string.Format("Failed to acquire access to the image. Return code:{0}", acquireAccessStatus));
+            }
+            var dwidth = dimage.Info.width;
+            var dheight = dimage.Info.height;
+            var centerIndex = ((640 * 190) + 320);
+            var dpixels = outBuffer.ToFloatArray(0, 640 * dheight);
+            var result = dpixels[centerIndex];
+            test = result / (float)2047;
+
+        dimage.ReleaseAccess(outBuffer);
+        }
+        else
+        {
+            Debug.Log("Null Depth Image");
+        }
+
+
+    }
 
     // Use this for initialization
     void Start()
@@ -76,7 +103,8 @@ public class RawStreamsController : MonoBehaviour
         sm.CaptureManager.FilterByStreamProfiles(profiles);
         sampleReader = SampleReader.Activate(sm);
         sampleReader2 = SampleReader.Activate(sm);
-        sampleReader2.EnableStream(StreamType.STREAM_TYPE_DEPTH, 640, 480, 30);
+        sampleReader2.EnableStream(StreamType.STREAM_TYPE_DEPTH, depthWidth,depthHeight, colorFPS);
+
         // Enable and Get a segmentation instance here for configuration
         seg = Seg3D.Activate(sm);
 
@@ -88,7 +116,6 @@ public class RawStreamsController : MonoBehaviour
         /* Initialize pipeline */
         sm.Init();
 
-      
         // Flip the image horizontally
         sm.CaptureManager.Device.IVCAMAccuracy = IVCAMAccuracy.IVCAM_ACCURACY_FINEST;
         sm.CaptureManager.Device.MirrorMode = MirrorMode.MIRROR_MODE_HORIZONTAL;
@@ -106,43 +133,10 @@ public class RawStreamsController : MonoBehaviour
 
     }
 
-    private void SampleArrived(object sender, SampleArrivedEventArgs args)
+    void Update()
     {
-        Image dimage = args.sample.Depth;
-
-        Debug.Log("Sample Called");
-
-        if (dimage != null)
-
-        {
-            Debug.Log("seen");
-            ImageData outBuffer;
-            Status acquireAccessStatus = dimage.AcquireAccess(ImageAccess.ACCESS_READ, PixelFormat.PIXEL_FORMAT_DEPTH_F32, out outBuffer);
-            if (acquireAccessStatus != Status.STATUS_NO_ERROR)
-            {
-                Debug.Log(string.Format("Failed to acquire access to the image. Return code:{0}", acquireAccessStatus));
-            }
-            var dwidth = dimage.Info.width;
-            var dheight = dimage.Info.height;
-            var centerIndex = ((640 * 190) + 320);
-            Debug.Log(" this is:" + dwidth + " " + dheight);
-            Debug.Log("pitch is:" + outBuffer.pitches[0]); // why is pitch 2560 for single float?
-
-            var dpixels = outBuffer.ToFloatArray(0, 640 * dheight);
-            Debug.Log("Here is the buffer length: " + dpixels.Length);
-            double result = dpixels[centerIndex];
-            double tester = ((double)result - int.MinValue) / ((double)int.MaxValue - int.MinValue);
-            test = (float)tester;
-            Debug.Log("This is my depth value: " + test);
-
-            dimage.ReleaseAccess(outBuffer);
-        }
-        else
-        {
-            Debug.Log("Null depthImage");
-        }
-
-
+        //Set global variable to the shader
+        Shader.SetGlobalFloat("_tst", test);   
     }
 
     private void Seg_OnAlert(object sender, Seg3D.AlertEventArgs args)
